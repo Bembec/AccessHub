@@ -48,6 +48,56 @@ AccessHub V2 stores employee information in a local SQLite database and exposes 
 * Returns a successful deletion message
 * Returns `404 Not Found` for an unknown employee
 
+
+## Version 7 — Administrator Security and Audit Logs
+
+AccessHub V7 protects sensitive employee-management operations and records administrative activity.
+
+### Security Features
+
+* Protects employee creation with an administrator API key
+* Protects employee updates and deletions
+* Protects access to administrative audit logs
+* Reads the secret key from an environment variable
+* Uses secure key comparison
+* Returns `401 Unauthorized` for an invalid key
+* Returns `503 Service Unavailable` when no administrator key is configured
+
+### Audit Features
+
+* Automatically creates an `audit_logs` table
+* Records employee creation events
+* Records employee update events
+* Records employee deletion events
+* Stores timestamps, action types, employee IDs, and event details
+* Returns recent activity through `GET /audit-logs`
+* Supports an audit result limit between 1 and 100
+
+### Protected Endpoints
+
+The following endpoints require the `x-api-key` header:
+
+* `POST /employees`
+* `PUT /employees/{employee_id}`
+* `DELETE /employees/{employee_id}`
+* `GET /audit-logs`
+
+### Configure the Administrator Key
+
+Set an administrator key before starting AccessHub:
+
+```powershell
+$env:ACCESSHUB_ADMIN_KEY = "your-private-administrator-key"
+```
+
+Start the API:
+
+```powershell
+python -m uvicorn main:app --reload
+```
+
+The administrator key must never be hardcoded in `main.py` or uploaded to GitHub.
+
 ## CRUD Endpoints
 
 * `POST /employees` — create an employee
